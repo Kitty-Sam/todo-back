@@ -59,6 +59,14 @@ export class UserController {
     return this.userService.getUserByEmail(getUserDto);
   }
 
+  @ApiOperation({ summary: 'Get User by id' })
+  @ApiResponse({ status: 200, description: 'Return User' })
+  @Post('/get-user-by-id')
+  // @UseGuards(JwtAuthGuard)
+  async getUserById(@Body() getUserDto: { id: string }): Promise<User> {
+    return this.userService.getUserById(getUserDto);
+  }
+
   //deals part
   @ApiOperation({ summary: 'Get all Deals for proper User' })
   @ApiResponse({
@@ -95,7 +103,7 @@ export class UserController {
   @Delete('/remove-deal')
   @UseGuards(JwtAuthGuard)
   async removeDeal(
-    @Body() deleteDealDto: { title: string },
+    @Body() deleteDealDto: { id: string },
     @Req() request: RequestWithUser,
   ): Promise<string[]> {
     const { user } = request;
@@ -112,7 +120,7 @@ export class UserController {
   @Put('/update-deal')
   @UseGuards(JwtAuthGuard)
   async updateDeal(
-    @Body() updateDealDto: { newTitle: string; oldTitle: string },
+    @Body() updateDealDto: { newTitle: string; id: string },
     @Req() request: RequestWithUser,
   ): Promise<string[]> {
     const { user } = request;
@@ -128,7 +136,7 @@ export class UserController {
   @Post('/add-friend')
   @UseGuards(JwtAuthGuard)
   async addFriend(
-    @Body() addFriendDto: { email: string },
+    @Body() addFriendDto: { email: string; id: string },
     @Req() request: RequestWithUser,
   ): Promise<string[]> {
     const { user } = request;

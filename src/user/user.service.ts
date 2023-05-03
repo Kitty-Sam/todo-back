@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../schemas/user.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { RegisterDto } from '../auth/dto/auth.dto';
 
 @Injectable()
@@ -21,6 +21,11 @@ export class UserService {
 
   async getUserByEmail(getUserDto: { email: string }): Promise<User> {
     const user = await this.userModel.findOne({ email: getUserDto.email });
+    return user;
+  }
+
+  async getUserById(getUserDto: { id: string }): Promise<User> {
+    const user = await this.userModel.findOne({ _id: getUserDto.id });
     return user;
   }
 
@@ -62,37 +67,33 @@ export class UserService {
     user: User,
   ): Promise<string[]> {
     const { email } = user;
+    const id = new mongoose.Types.ObjectId();
 
     try {
       await this.userModel.updateOne(
         { email: email },
-        { $push: { deals: createDealDto.title } },
+        { $push: { deals: { title: createDealDto.title, id } } },
       );
     } catch (e) {
       console.log(e);
     }
-
-    // const createdDeal = new this.dealModel(createDealDto);
-    // await createdDeal.save();
 
     const currentUser = await this.userModel.findOne({ email });
     return currentUser.deals;
   }
 
   async removeDeal(
-    deleteDealDto: { title: string },
+    deleteDealDto: { id: string },
     user: User,
   ): Promise<string[]> {
     const { email } = user;
+    const currentId = new mongoose.Types.ObjectId(deleteDealDto.id);
 
     try {
-      const res = await this.userModel.updateOne(
+      await this.userModel.updateOne(
         { email: email },
-        { $pull: { deals: deleteDealDto.title } },
+        { $pull: { deals: { id: currentId } } },
       );
-      if (!res.modifiedCount) {
-        console.log('item is already deleted');
-      }
     } catch (e) {
       console.log(e);
     }
@@ -102,15 +103,19 @@ export class UserService {
   }
 
   async updateDeal(
-    updateDealDto: { newTitle: string; oldTitle },
+    updateDealDto: { newTitle: string; id: string },
     user: User,
   ): Promise<string[]> {
     const { email } = user;
 
+    const currentId = new mongoose.Types.ObjectId(updateDealDto.id);
+
     try {
       const res = await this.userModel.updateOne(
-        { email: email, deals: updateDealDto.oldTitle },
-        { $set: { 'deals.$': updateDealDto.newTitle } },
+        { email: email, deals: { $elemMatch: { id: currentId } } },
+        {
+          $set: { 'deals.$': { title: updateDealDto.newTitle, id: currentId } },
+        },
       );
 
       if (!res.acknowledged) {
@@ -126,7 +131,7 @@ export class UserService {
 
   //friends
   async addFriend(
-    addFriendDto: { email: string },
+    addFriendDto: { email: string; id: string },
     user: User,
   ): Promise<string[]> {
     const { email } = user;
@@ -136,7 +141,7 @@ export class UserService {
         { email: email },
         {
           $push: {
-            friends: addFriendDto.email,
+            friends: { email: addFriendDto.email, id: addFriendDto.id },
           },
         },
       );
@@ -156,7 +161,7 @@ export class UserService {
     try {
       await this.userModel.updateOne(
         { email: email },
-        { $pull: { friends: removeFriendDto.email } },
+        { $pull: { friends: { email: removeFriendDto.email } } },
       );
     } catch (e) {
       console.log(e);
