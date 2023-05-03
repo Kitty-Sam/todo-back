@@ -30,22 +30,33 @@ export class UserController {
     return this.userService.findAllUsers();
   }
 
-  @ApiOperation({ summary: 'Update User name by email' })
+  @ApiOperation({ summary: 'Update User name' })
   @ApiResponse({ status: 200, description: 'Return updated user' })
-  @Put('/user')
-  async updateUserAvatarByEmail(
-    @Body() updateUserDto: { name: string; email: string },
+  @Put('/update-user')
+  @UseGuards(JwtAuthGuard)
+  async updateUserName(
+    @Body() updateUserDto: { newName: string },
+    @Req() request: RequestWithUser,
   ): Promise<User> {
-    return this.userService.updateUserName(updateUserDto);
+    const { user } = request;
+    return this.userService.updateUserName(updateUserDto, user);
+  }
+
+  @ApiOperation({ summary: 'Remove User' })
+  @ApiResponse({ status: 200, description: 'Return void' })
+  @Delete('/remove-user')
+  @UseGuards(JwtAuthGuard)
+  async removeUserByEmail(@Req() request: RequestWithUser): Promise<void> {
+    const { user } = request;
+    return this.userService.removeUser(user);
   }
 
   @ApiOperation({ summary: 'Get User by email' })
-  @ApiResponse({ status: 200, description: 'Return void' })
-  @Delete('/user')
-  async removeUserByEmail(
-    @Body() removeUserDto: { email: string },
-  ): Promise<void> {
-    return this.userService.removeUser(removeUserDto);
+  @ApiResponse({ status: 200, description: 'Return User' })
+  @Post('/get-user-by-email')
+  @UseGuards(JwtAuthGuard)
+  async getUserByEmail(@Body() getUserDto: { email: string }): Promise<User> {
+    return this.userService.getUserByEmail(getUserDto);
   }
 
   //deals part

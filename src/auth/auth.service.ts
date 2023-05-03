@@ -23,7 +23,9 @@ export class AuthService {
   }
 
   async registration(userDto: RegisterDto) {
-    const candidate = await this.userService.getUserByEmail(userDto.email);
+    const candidate = await this.userService.getUserByEmail({
+      email: userDto.email,
+    });
     if (candidate) {
       throw new HttpException(
         'User with such email has already exist',
@@ -37,7 +39,8 @@ export class AuthService {
       deals: [],
       friends: [],
     });
-    return this.generateToken(user);
+    // return this.generateToken(user);
+    return user;
   }
 
   private async generateToken(user: User) {
@@ -48,7 +51,9 @@ export class AuthService {
   }
 
   private async validateUser(userDto: LoginDto) {
-    const user = await this.userService.getUserByEmail(userDto.email);
+    const user = await this.userService.getUserByEmail({
+      email: userDto.email,
+    });
     const passwordEquals = await bcrypt.compare(
       userDto.password,
       user.password,

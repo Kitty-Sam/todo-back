@@ -19,27 +19,33 @@ export class UserService {
     return this.userModel.find();
   }
 
-  async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email });
+  async getUserByEmail(getUserDto: { email: string }): Promise<User> {
+    const user = await this.userModel.findOne({ email: getUserDto.email });
     return user;
   }
 
-  async updateUserName(updateDto: {
-    name: string;
-    email: string;
-  }): Promise<User> {
-    const { name, email } = updateDto;
+  async updateUserName(
+    updateDto: {
+      newName: string;
+    },
+    user: User,
+  ): Promise<User> {
+    const { newName } = updateDto;
+    const { email } = user;
     try {
-      await this.userModel.updateOne({ email: email }, { $set: { name } });
+      await this.userModel.updateOne(
+        { email: email },
+        { $set: { name: newName } },
+      );
     } catch (e) {
       console.log(e);
     }
-    const user = await this.userModel.findOne({ email });
-    return user;
+    const currentUser = await this.userModel.findOne({ email });
+    return currentUser;
   }
 
-  async removeUser(removeUserDto: { email: string }): Promise<void> {
-    const { email } = removeUserDto;
+  async removeUser(user: User): Promise<void> {
+    const { email } = user;
     await this.userModel.deleteOne({ email });
   }
 
@@ -128,7 +134,11 @@ export class UserService {
     try {
       await this.userModel.updateOne(
         { email: email },
-        { $push: { friends: addFriendDto.email } },
+        {
+          $push: {
+            friends: addFriendDto.email,
+          },
+        },
       );
     } catch (e) {
       console.log(e);
