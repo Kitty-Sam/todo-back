@@ -3,9 +3,23 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+const options = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+  allowedHeaders: [
+    'origin',
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'authorization',
+  ],
+  exposedHeaders: ['Set-Cookie'],
+};
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors(options);
 
   const config = new DocumentBuilder()
     .setTitle('List of good things')

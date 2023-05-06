@@ -12,9 +12,11 @@ import { UserService } from './user.service';
 import { User } from '../schemas/user.schema';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 export interface RequestWithUser extends Request {
   user: User;
+  cookie: string;
 }
 
 @ApiTags('Users')
@@ -23,7 +25,10 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Get all Users' })
-  @ApiResponse({ status: 200, description: 'Return array of all Users' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return array of all Users and Current User',
+  })
   @Get('/users')
   @UseGuards(JwtAuthGuard)
   async getAllUsers(): Promise<User[]> {
@@ -62,7 +67,7 @@ export class UserController {
   @ApiOperation({ summary: 'Get User by id' })
   @ApiResponse({ status: 200, description: 'Return User' })
   @Post('/get-user-by-id')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async getUserById(@Body() getUserDto: { id: string }): Promise<User> {
     return this.userService.getUserById(getUserDto);
   }
@@ -95,10 +100,12 @@ export class UserController {
     return this.userService.createDeal(createDealDto, user);
   }
 
-  @ApiOperation({ summary: 'Get all Deals for proper User without new one' })
+  @ApiOperation({
+    summary: 'Get all Deals for proper User without deleted deal',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Return array of deals for proper User without new deal',
+    description: 'Return array of deals for proper User without deleted dea',
   })
   @Delete('/remove-deal')
   @UseGuards(JwtAuthGuard)
@@ -143,10 +150,10 @@ export class UserController {
     return this.userService.addFriend(addFriendDto, user);
   }
 
-  @ApiOperation({ summary: 'Add friend' })
+  @ApiOperation({ summary: 'Remove friend' })
   @ApiResponse({
     status: 200,
-    description: 'Return array of friends for proper User',
+    description: 'Return array of friends for proper User without deleted User',
   })
   @Delete('/remove-friend')
   @UseGuards(JwtAuthGuard)
