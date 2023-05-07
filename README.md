@@ -9,15 +9,15 @@ npm install
 
 ```bash
 # for start
-npm docker-compose up -d
+docker-compose up -d
 
 # for end
-npm docker-compose down
+docker-compose down
 ```
 
 
 ## Running the backend service:
 
 ```bash
-npm npm run start:dev
+npm run start:dev
 ```
