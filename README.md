@@ -1,21 +1,23 @@
-
-
-## Description
-
-List of good things
-
-## Installation
+## Local setup
 
 ```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
+npm install
 ```
 
 
+## Running the Docker with Mongo service:
 
+```bash
+# for start
+npm docker-compose up -d
+
+# for end
+npm docker-compose down
+```
+
+
+## Running the backend service:
+
+```bash
+npm npm run start:dev
+```

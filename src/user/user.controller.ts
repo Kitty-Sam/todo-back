@@ -158,7 +158,7 @@ export class UserController {
   @Delete('/remove-friend')
   @UseGuards(JwtAuthGuard)
   async removeFriend(
-    @Body() removeFriendDto: { email: string },
+    @Body() removeFriendDto: { id: string },
     @Req() request: RequestWithUser,
   ): Promise<string[]> {
     const { user } = request;

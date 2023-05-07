@@ -153,7 +153,7 @@ export class UserService {
   }
 
   async removeFriend(
-    removeFriendDto: { email: string },
+    removeFriendDto: { id: string },
     user: User,
   ): Promise<string[]> {
     const { email } = user;
@@ -161,7 +161,7 @@ export class UserService {
     try {
       await this.userModel.updateOne(
         { email: email },
-        { $pull: { friends: { email: removeFriendDto.email } } },
+        { $pull: { friends: { id: removeFriendDto.id } } },
       );
     } catch (e) {
       console.log(e);
